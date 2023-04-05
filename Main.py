@@ -26,6 +26,26 @@ def system(state, t):
 
     return du, dTe, dTw
 
+#this is the final modified system with u**=u*(1+3sin(2pit)
+def mod_system(state, t):
+    u, T_e, T_w = state
+
+    # constants, to the right of each constant i noted its original value
+    A = 1.0 # 1.0 
+    #if you double A, current velocity flattens after about 7 years
+    B = 663.0 # 663.0
+    C = 3.0 # 3.0 
+    T_star = 12.0 # 12.0
+    u_star = -14.2 # -14.2
+    delta_x = 7.5 # 7.5
+
+    # setting up the 3 differential equations
+    du = B / delta_x * (T_e - T_w) - C * (u - u_star*(1+3*np.sin(2*np.pi*t))) #  = du/dt
+    dTe = u * T_w / (2 * delta_x) - A * (T_e - T_star) #  = dTe/dt
+    dTw = -u * T_e / (2 * delta_x) - A * (T_w - T_star) #  = dTw/dt
+
+    return du, dTe, dTw
+
 # function for taking the derivative of a function (symmetric derivative)
 def diff(func, x, dx):
     dfs = np.zeros(len(x) - 2)
@@ -130,20 +150,27 @@ t_end = 200 # the maximum value of time
 t = np.arange(t_start, t_end, dt)
 state_0 = [10, 10, 14] # initial conditions
 y = odeint(system, state_0, t) # y is a list with elemets that are list with 3 entries containing u, Te, Tw for each time step
+mod_y = odeint(mod_system, state_0, t)
 
 # this corresponds to the functions u, Te, Tw which are function of time
 u = y[:,0]
 Te = y[:,1]
 Tw = y[:,2]
 
+mod_u = mod_y[:,0]
+mod_Te = mod_y[:,1]
+mod_Tw = mod_y[:,2]
+
 # first plots
 
-plt.plot(t, u)
+plt.plot(t, u, label="u")
+#plt.plot(t, mod_u, label="mod_u")
 plt.title("Current velocity against time ({} years)".format(t_end))
 plt.xlabel("Time t (years)")
 plt.ylabel("Current Velocity u ") # 10^3km / year  units?
 plt.ylim((-400,400))
 plt.xlim((0, t_end))
+plt.legend()
 plt.grid(axis = 'y')
 #plt.show()
 
@@ -161,6 +188,7 @@ du = diff(u, t, dt) # calculating derivative of u
 #plt.plot(t[1:-1], du, "--")
 
 roots = find_all_maxima(u, du, t_start, t_end, .1, 100) # finding all the 
+mod_roots = find_all_maxima(mod_u, du, t_start, t_end, .1, 100)
 
 # code for single root finder
 """root = find_root(83, 84, du)
@@ -202,5 +230,25 @@ plt.xlabel("current velocity (1000 km / years)")
 plt.ylabel("T_e - T_w ")
 plt.ylim((-30,30))
 plt.show()"""
+
+"""# plot of ti against ti+10, ignoring the first 10 events
+plt.plot(times_between_ENSO[10:-10], times_between_ENSO[20:])
+plt.title("Ti vs T(i+10)")
+plt.xlabel("T(i+10)")
+plt.ylabel("Ti")
+plt.show()
+# correlation = stairs
+# if uncorrelated, graph would have no distinguishable pattern"""
+
+# 
+ENSO_months = []
+for i in range(len(mod_roots)):
+    ENSO_months.append(mod_roots[i]%1)
+    
+# histogram plot for amount of 
+plt.hist(ENSO_months, bins= 12)
+plt.ylabel("ENSO event")
+plt.xlabel("Months")
+plt.show()
 
 plt.show() 
