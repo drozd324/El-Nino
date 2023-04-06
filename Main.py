@@ -14,7 +14,7 @@ def system(state, t):
     # constants, to the right of each constant i noted its original value
     A = 1.0 # 1.0
     B = 663.0 # 663.0
-    C = 3.0 # 3.0 
+    C = 3.0 # 3.0
     T_star = 12.0 # 12.0
     u_star = -14.2 # -14.2
     delta_x = 7.5 # 7.5
@@ -26,15 +26,15 @@ def system(state, t):
 
     return du, dTe, dTw
 
-#this is the final modified system with u*=u*(1+3sin(2pit))
+#this is the final modified system with u* = u * (1 + *( 3*sin(2*pi*t)) )
 def mod_system(state, t):
     u, T_e, T_w = state
 
     # constants, to the right of each constant i noted its original value
-    A = 1.0 # 1.0 
+    A = 1.0 # 1.0
     #if you double A, current velocity flattens after about 7 years
     B = 663.0 # 663.0
-    C = 3.0 # 3.0 
+    C = 3.0 # 3.0
     T_star = 12.0 # 12.0
     u_star = -14.2 # -14.2
     delta_x = 7.5 # 7.5
@@ -102,7 +102,7 @@ def find_all_maxima(f, df, start_step, end_step, step_size, y_shift):
     b = a + step_size
     brackets_start = 0
     for i in range(int(end_step/step_size)):
-                
+
         if (make_func(f, a) - y_shift) * (make_func(f, b) - y_shift) < 0:
             if len(brackets) == 0:
                 if (make_func(f, a) - y_shift) > 0:
@@ -119,7 +119,7 @@ def find_all_maxima(f, df, start_step, end_step, step_size, y_shift):
         b = brackets[j + 1]
         root = find_root(a, b, df)
         roots.append(root)
-    
+
     return roots
 
 # calculates the average of a list of numbers
@@ -146,7 +146,7 @@ def standard_dev(mylist):
 
 dt = .01 # resolution
 t_start = 0 # this will allways be 0
-t_end = 1000 # the maximum value of time 
+t_end = 500 # the maximum value of time
 
 t = np.arange(t_start, t_end, dt)
 state_0 = [10, 10, 14] # initial conditions
@@ -192,15 +192,8 @@ du = diff(u, t, dt) # calculating derivative of u
 # this will plot the derivative of u
 #plt.plot(t[1:-1], du, "--")
 
-roots = find_all_maxima(u, du, t_start, t_end, .1, 100) # finding all the 
+roots = find_all_maxima(u, du, t_start, t_end, .1, 100) # finding all the
 mod_roots = find_all_maxima(mod_u, du, t_start, t_end, .1, 100)
-
-# code for single root finder
-"""root = find_root(83, 84, du)
-print(root)
-print(func_u(root))
-plt.scatter(root, func_u(rot))
-"""
 
 # number of El-Nino events in the time run
 num_of_elNinos = len(roots)
@@ -210,7 +203,7 @@ print("The number of ENSO events in {} years is: {}".format(t_end, num_of_elNino
 times_between_ENSO = [] # periods of time
 for i in range(num_of_elNinos - 1):
     times_between_ENSO.append(roots[i+1] - roots[i]) # roots is sorted so dont need abs() function
-times_between_ENSO.sort()
+#times_between_ENSO.sort()
 
 # finding the mean, and standard deviations (igonring the first 10 ENSO events)
 average_T = mean(times_between_ENSO[10:])
@@ -240,7 +233,7 @@ plt.show()"""
 
 # i have a feeling this is wrong (idk)
 # plot of ti against ti+10, ignoring the first 10 events ( maybe not necessary i think we should start at 5)
-"""plt.plot(times_between_ENSO[10:-10], times_between_ENSO[20:])
+"""plt.scatter(times_between_ENSO[10:-10], times_between_ENSO[20:])
 plt.title("Ti vs T(i+10)")
 plt.xlabel("T(i+10)")
 plt.ylabel("Ti")
@@ -248,15 +241,13 @@ plt.show()"""
 # correlation = stairs
 # if uncorrelated, graph would have no distinguishable pattern
 
-# 
-"""ENSO_months = []
+#
+ENSO_months = []
 for i in range(len(mod_roots)):
-    ENSO_months.append(mod_roots[i]%1)"""
-    
-# histogram plot for amount of 
+    ENSO_months.append(mod_roots[i] % 1)
+
+# histogram plot for amount of
 """plt.hist(ENSO_months, bins= 12)
 plt.ylabel("ENSO event")
 plt.xlabel("Months")
 plt.show()"""
-
-
