@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
+from mpl_toolkits.mplot3d import Axes3D
 
 # in the first half, we show all of the functions we will use in the program because it think it will be easier to read.
 # Then we will have all of the plots and results we want to obtain in the second half.
@@ -53,6 +54,51 @@ def diff(func, x, dx):
         dfs[i-1] = (func[i + 1] - func[i - 1]) / (2 * dx)
     return dfs
 
+# intagrates a function on its entire interval
+def integrate(func, dx):
+    result = 0
+    for i in range(len(func) - 1):
+        result += func[i] + func[i + 1]
+    return result * (dx/2)
+
+# calculates the fourier series of a function in array form
+def fourier_series(func, x, dx, end, n, total_series): 
+
+    a = []
+    for j in range(n):
+        cos = []
+        for i in range(len(x)):
+            cos.append(np.cos((j * np.pi * x[i]) / end))
+        cos = np.array(cos)
+        a_n = integrate(func * cos, dx)
+        a.append(a_n)
+    a[0] = a[0]/2
+
+    b = []
+    for j in range(n):
+        sin = []
+        for i in range(len(x)):
+            sin.append(np.sin(j * np.pi * x[i]) / end)
+        sin = np.array(sin)
+        b_n = integrate(func * sin, dx)
+        b.append(b_n)
+
+    fourier_list = []
+    if total_series == True:
+        for i in range(len(x)):
+            slot = 0
+            for j in range(n):
+                slot += (2/end) * (a[j] * np.cos((j * np.pi * x[i]) / end) + b[j] * np.sin((j * np.pi * x[i]) / end))
+            fourier_list.append(slot)
+    else:
+        for i in range(len(x)):
+            slot = []
+            for j in range(n):
+                slot.append((2/end) * (a[j] * np.cos((j * np.pi * x[i]) / end) + b[j] * np.sin((j * np.pi * x[i]) / end)))
+            fourier_list.append(slot)
+    
+    return fourier_list
+
 # this will turn the numpy array into a something that works like a mathematical function
 def make_func(list_func, x):
     # first bit makes sure that we wont round into an index outside the reach of the list
@@ -69,7 +115,6 @@ def find_root(a, b, func):
     if make_func(func, a) * make_func(func, b) > 0:
         x3 = "None" # im makeing the output a string if there is no root
         run = False
-
     if make_func(func, a) < 0:
         x1 = a
         x2 = b
@@ -102,14 +147,11 @@ def find_all_maxima(f, df, start_step, end_step, step_size, y_shift):
     b = a + step_size
     brackets_start = 0
     for i in range(int(end_step/step_size)):
-
         if (make_func(f, a) - y_shift) * (make_func(f, b) - y_shift) < 0:
             if len(brackets) == 0:
                 if (make_func(f, a) - y_shift) > 0:
                     brackets_start = 1
-
             brackets.append(a)
-
         a += step_size
         b += step_size
 
@@ -125,50 +167,47 @@ def find_all_maxima(f, df, start_step, end_step, step_size, y_shift):
 # calculates the average of a list of numbers
 def mean(mylist):
     list_lenght = len(mylist)
-    my_sum = 0
-    for i in range(list_lenght):
-        my_sum += mylist[i]
-    return my_sum / list_lenght
+    if list_lenght == 0:
+        return 0
+    else:
+        my_sum = 0
+        for i in range(list_lenght):
+            my_sum += mylist[i]
+        return my_sum / list_lenght
 
 # calculates the standard deviation of a list of numbers
 def standard_dev(mylist):
     list_length = len(mylist)
-    my_sum = 0
-    average = mean(mylist)
-    for i in range(list_length):
-        my_sum += (mylist[i] - average)**2
-
-    return np.sqrt(my_sum/list_length)
+    if list_length == 0:
+        return 0
+    else:
+        my_sum = 0
+        average = mean(mylist)
+        for i in range(list_length):
+            my_sum += (mylist[i] - average)**2
+        return np.sqrt(my_sum/list_length)
 
 
 """ SECOND HALF: OBTAINING RESULTS """
 
 
-dt = .01 # resolution
+dt = .001 # resolution
 t_start = 0 # this will allways be 0
-t_end = 500 # the maximum value of time
+t_end = 50 # the maximum value of time
 
 t = np.arange(t_start, t_end, dt)
 state_0 = [10, 10, 14] # initial conditions
-y = odeint(system, state_0, t) # y is a list with elemets that are list with 3 entries containing u, Te, Tw for each time step
 
+y = odeint(system, state_0, t) # y is a list with elemets that are list with 3 entries containing u, Te, Tw for each time step
 # this corresponds to the functions u, Te, Tw which are function of time
 u = y[:,0]
 Te = y[:,1]
 Tw = y[:,2]
 
-# calculating u, Te, Tw for modified system
-mod_y = odeint(mod_system, state_0, t)
-
-mod_u = mod_y[:,0]
-mod_Te = mod_y[:,1]
-mod_Tw = mod_y[:,2]
 
 # first plots
 
-
-"""plt.plot(t, u, label="u")
-plt.plot(t, mod_u, label="mod_u")
+plt.plot(t, u, label="u")
 plt.title("Current velocity against time ({} years)".format(t_end))
 plt.xlabel("Time t (years)")
 plt.ylabel("Current Velocity u ") # 10^3km / year  units?
@@ -177,7 +216,7 @@ plt.xlim((0, t_end))
 plt.legend()
 plt.grid(axis = 'y')
 plt.show()
-"""
+
 
 """
 plt.plot(t, Te - Tw)
@@ -193,7 +232,10 @@ du = diff(u, t, dt) # calculating derivative of u
 #plt.plot(t[1:-1], du, "--")
 
 roots = find_all_maxima(u, du, t_start, t_end, .1, 100) # finding all the
-mod_roots = find_all_maxima(mod_u, du, t_start, t_end, .1, 100)
+# this will mark all the maxima in the list of roots on the graph
+"""for i in range(len(roots)):
+    plt.scatter(roots[i], make_func(u, roots[i]))
+plt.show() """
 
 # number of El-Nino events in the time run
 num_of_elNinos = len(roots)
@@ -211,13 +253,9 @@ dev_T = standard_dev(times_between_ENSO[10:])
 print("The mean time between ENSO events (ignoring the first 10) is: {} years".format(average_T))
 print("The standard deviation of ENSO events (ignoring the first 10) is: {}".format(dev_T))
 
-# this will mark all the maxima in the list of roots on the graph
-"""for i in range(len(roots)):
-    plt.scatter(roots[i], make_func(u, roots[i]))
-plt.show() """
 
 # histogram plot make nicer
-"""plt.hist(times_between_ENSO, bins= 30)
+"""plt.hist(times_between_ENSO, bins = 30)
 plt.ylabel("Number of ENSO events")
 plt.xlabel("Time beteen ENSO events")
 plt.show()"""
@@ -231,23 +269,54 @@ plt.ylabel("T_e - T_w ")
 plt.ylim((-30,30))
 plt.show()"""
 
-# i have a feeling this is wrong (idk)
-# plot of ti against ti+10, ignoring the first 10 events ( maybe not necessary i think we should start at 5)
+# plot of ti against ti+10, ignoring the first 10 events 
 """plt.scatter(times_between_ENSO[10:-10], times_between_ENSO[20:])
 plt.title("Ti vs T(i+10)")
 plt.xlabel("T(i+10)")
 plt.ylabel("Ti")
 plt.show()"""
-# correlation = stairs
 # if uncorrelated, graph would have no distinguishable pattern
 
-#
+# calculating u, Te, Tw for modified system
+"""mod_y = odeint(mod_system, state_0, t)
+mod_u = mod_y[:,0]
+mod_Te = mod_y[:,1]
+mod_Tw = mod_y[:,2]
+
+plt.plot(t, mod_u, label="mod_u")
+
+mod_roots = find_all_maxima(mod_u, du, t_start, t_end, .1, 100)
 ENSO_months = []
 for i in range(len(mod_roots)):
-    ENSO_months.append(mod_roots[i] % 1)
+    ENSO_months.append(mod_roots[i] % 1)"""
 
 # histogram plot for amount of
 """plt.hist(ENSO_months, bins= 12)
 plt.ylabel("ENSO event")
 plt.xlabel("Months")
 plt.show()"""
+
+# 3d plot
+"""fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.plot(u, Te, Tw)
+plt.draw()
+plt.show()"""
+
+# fourier series stuff ( fun but i think ultimately useless unless you see some patterns which i didnt notice)
+"""series_degree = 50
+sift = 2
+
+# this bit is the fourier series up to series degree we chose
+u_fourier = fourier_series(u, t, dt, t_end, series_degree, True)
+plt.plot(t, u_fourier, "--")
+
+# this bit docomposes the fourier series into sin and cosine waves
+un_fourier = fourier_series(u, t, dt, t_end, series_degree, False)
+for i in range(int(series_degree/sift)):
+    n_term = np.array(un_fourier)[:,sift*i]
+    plt.plot(t, n_term)
+
+plt.show()"""
+
+
