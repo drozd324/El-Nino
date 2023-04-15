@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
-from mpl_toolkits.mplot3d import Axes3D
 
 # in the first half, we show all of the functions we will use in the program because it think it will be easier to read.
 # Then we will have all of the plots and results we want to obtain in the second half.
@@ -187,9 +186,37 @@ def standard_dev(mylist):
             my_sum += (mylist[i] - average)**2
         return np.sqrt(my_sum/list_length)
 
+def norm(funcs1, funcs2, t):
+    x1 = funcs1[:,0]
+    y1 = funcs1[:,1]
+    z1 = funcs1[:,2]
+
+    x2 = funcs2[:,0]
+    y2 = funcs2[:,1]
+    z2 = funcs2[:,2]
+
+    norms = []
+    for i in range(len(t)):
+        norms.append( np.sqrt( (x1[i] - x2[i])**2 + (y1[i] - y2[i])**2 + (z1[i] - z2[i])**2) ) 
+    
+    return norms
+
+def norm_untill(funcs1, funcs2, t, max_dist):
+    x1 = funcs1[:,0]
+    y1 = funcs1[:,1]
+    z1 = funcs1[:,2]
+
+    x2 = funcs2[:,0]
+    y2 = funcs2[:,1]
+    z2 = funcs2[:,2]
+
+    norms = []
+    for i in range(len(t)):
+        norms.append( np.sqrt( (x1[i] - x2[i])**2 + (y1[i] - y2[i])**2 + (z1[i] - z2[i])**2) ) 
+    
+    return norms
 
 """ SECOND HALF: OBTAINING RESULTS """
-
 
 dt = .001 # resolution
 t_start = 0 # this will allways be 0
@@ -204,18 +231,30 @@ u = y[:,0]
 Te = y[:,1]
 Tw = y[:,2]
 
+# this bit is to check how the distance between the system and the same system with slight chaged initial conditions
+# changes over time.
+"""state_0_plus = [10, 10.01, 14] # original inital conditions [10, 10, 14]
+y_plus = odeint(system, state_0_plus, t) # justify why small change in initial conditions is small enough
+u_plus = y[:,0]
+Te_plus = y[:,1]
+Tw_plus = y[:,2]
+
+plt.plot(t, norm(y, y_plus, t))
+plt.show()"""
+
+
 
 # first plots
 
-plt.plot(t, u, label="u")
+"""plt.plot(t, u, label="u")
 plt.title("Current velocity against time ({} years)".format(t_end))
 plt.xlabel("Time t (years)")
 plt.ylabel("Current Velocity u ") # 10^3km / year  units?
 plt.ylim((-400,400))
 plt.xlim((0, t_end))
 plt.legend()
-plt.grid(axis = 'y')
-plt.show()
+plt.grid(axis = 'y')"""
+#plt.show()
 
 
 """
@@ -226,6 +265,8 @@ plt.ylabel("T_e - T_w ")
 plt.ylim((-30,30))
 plt.show()
 """
+
+
 
 du = diff(u, t, dt) # calculating derivative of u
 # this will plot the derivative of u
@@ -269,6 +310,7 @@ plt.ylabel("T_e - T_w ")
 plt.ylim((-30,30))
 plt.show()"""
 
+#times_between_ENSO.sort()
 # plot of ti against ti+10, ignoring the first 10 events 
 """plt.scatter(times_between_ENSO[10:-10], times_between_ENSO[20:])
 plt.title("Ti vs T(i+10)")
@@ -282,9 +324,7 @@ plt.show()"""
 mod_u = mod_y[:,0]
 mod_Te = mod_y[:,1]
 mod_Tw = mod_y[:,2]
-
 plt.plot(t, mod_u, label="mod_u")
-
 mod_roots = find_all_maxima(mod_u, du, t_start, t_end, .1, 100)
 ENSO_months = []
 for i in range(len(mod_roots)):
@@ -304,19 +344,15 @@ plt.draw()
 plt.show()"""
 
 # fourier series stuff ( fun but i think ultimately useless unless you see some patterns which i didnt notice)
-"""series_degree = 50
-sift = 2
-
+series_degree = 10
+sift = 1
 # this bit is the fourier series up to series degree we chose
-u_fourier = fourier_series(u, t, dt, t_end, series_degree, True)
-plt.plot(t, u_fourier, "--")
-
+"""u_fourier = fourier_series(u, t, dt, t_end, series_degree, True)
+plt.plot(t, u_fourier, "--")"""
 # this bit docomposes the fourier series into sin and cosine waves
-un_fourier = fourier_series(u, t, dt, t_end, series_degree, False)
+"""un_fourier = fourier_series(u, t, dt, t_end, series_degree, False)
 for i in range(int(series_degree/sift)):
     n_term = np.array(un_fourier)[:,sift*i]
-    plt.plot(t, n_term)
-
-plt.show()"""
-
-
+    plt.plot(t, n_term, label = "{}".format(i))
+plt.legend()"""
+plt.show()
