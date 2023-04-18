@@ -9,6 +9,17 @@ from scipy.integrate import odeint
 
 # making a function for the set of differential equations
 def system(state, t):
+    """
+    Parameters
+    ----------
+    state : array with 3 values
+    t : array for time steps
+
+    Returns
+    -------
+    du/dt, dTe/dt, dTw/dt : array of of values for given state and t
+    """
+
     u, T_e, T_w = state
 
     # constants, to the right of each constant i noted its original value
@@ -28,6 +39,17 @@ def system(state, t):
 
 #this is the final modified system with u* = u * (1 + *( 3*sin(2*pi*t)) )
 def mod_system(state, t):
+    """
+    Parameters
+    ----------
+    state : array with 3 values
+    t : array for time steps
+
+    Returns
+    -------
+    (du/dt, dTe/dt, dTw/dt) : array of of values for given state and t
+    """
+
     u, T_e, T_w = state
 
     # constants, to the right of each constant i noted its original value
@@ -48,6 +70,18 @@ def mod_system(state, t):
 
 # function for taking the derivative of a function (symmetric derivative)
 def diff(func, x, dx):
+    """
+    Parameters
+    ----------
+    func : function in array form (from odeint)
+    x : numpy array of changing valiable
+    dx : step size
+
+    Returns
+    -------
+    derivative of function in array form
+    """
+
     dfs = np.zeros(len(x) - 2)
     for i in range(1, len(x) - 1):
         dfs[i-1] = (func[i + 1] - func[i - 1]) / (2 * dx)
@@ -55,13 +89,23 @@ def diff(func, x, dx):
 
 # intagrates a function on its entire interval
 def integrate(func, dx):
+    """
+    Parameters
+    ----------
+    func : function in array form (from odeint)
+    dx : step size
+
+    Returns
+    -------
+    integral of function for where its defined
+    """
     result = 0
     for i in range(len(func) - 1):
         result += func[i] + func[i + 1]
     return result * (dx/2)
 
 # calculates the fourier series of a function in array form
-def fourier_series(func, x, dx, end, n, total_series): 
+def fourier_series(func, x, dx, end, n, total_series):
 
     a = []
     for j in range(n):
@@ -95,11 +139,22 @@ def fourier_series(func, x, dx, end, n, total_series):
             for j in range(n):
                 slot.append((2/end) * (a[j] * np.cos((j * np.pi * x[i]) / end) + b[j] * np.sin((j * np.pi * x[i]) / end)))
             fourier_list.append(slot)
-    
+
     return fourier_list
 
 # this will turn the numpy array into a something that works like a mathematical function
 def make_func(list_func, x):
+    """
+    Parameters
+    ----------
+    list_func : function in array form (from odeint)
+    x : value at which the function will be evaluated at
+
+    Returns
+    -------
+    Value of function at x
+
+    """
     # first bit makes sure that we wont round into an index outside the reach of the list
     if len(list_func) - 1 < int(round(x/dt)):
         return list_func[-1]
@@ -108,6 +163,19 @@ def make_func(list_func, x):
 
 # function for root finding (bisection method)
 def find_root(a, b, func):
+    """
+    Parameters
+    ----------
+    a : float number for left bracket
+    b : float number for right bracket
+    func : function in array form (from odeint)
+
+    Returns
+    -------
+    root of function between on the interval [a,b], if no root is found then
+    reutuns a string
+    """
+
     x1 = 0
     x2 = 0
     x3 = 0
@@ -140,6 +208,21 @@ def find_root(a, b, func):
 
 # sexy root finder
 def find_all_maxima(f, df, start_step, end_step, step_size, y_shift):
+    """
+    Parameters
+    ----------
+    f : function in array form (from odeint)
+    df : derivative of function in array form
+    start_step : start of interval on which the function is defined from
+    end_step : end of interval on which the function is defined on
+    step_size : step size
+    y_shift : shifts the function along the y axis by given value
+
+    Returns
+    -------
+    return the values of highest peaks of the function
+
+    """
     roots = []
     brackets = []
     a = start_step
@@ -165,6 +248,15 @@ def find_all_maxima(f, df, start_step, end_step, step_size, y_shift):
 
 # calculates the average of a list of numbers
 def mean(mylist):
+    """
+    Parameters
+    ----------
+    mylist : list of values
+
+    Returns
+    -------
+    average/mean of mylist
+    """
     list_lenght = len(mylist)
     if list_lenght == 0:
         return 0
@@ -176,6 +268,16 @@ def mean(mylist):
 
 # calculates the standard deviation of a list of numbers
 def standard_dev(mylist):
+    """
+    Parameters
+    ----------
+    mylist : list of values
+
+    Returns
+    -------
+    standard deviation of mylist
+
+    """
     list_length = len(mylist)
     if list_length == 0:
         return 0
@@ -186,7 +288,20 @@ def standard_dev(mylist):
             my_sum += (mylist[i] - average)**2
         return np.sqrt(my_sum/list_length)
 
+# calculates the norms/distances between two systems
 def norm(funcs1, funcs2, t):
+    """
+    Parameters
+    ----------
+    funcs1 : odeint output for first system
+    funcs2 : odeint output for second system
+    t : array for time steps
+
+    Returns
+    -------
+    returns array of distances bewteen the fist and second system
+
+    """
     x1 = funcs1[:,0]
     y1 = funcs1[:,1]
     z1 = funcs1[:,2]
@@ -197,8 +312,8 @@ def norm(funcs1, funcs2, t):
 
     norms = []
     for i in range(len(t)):
-        norms.append( np.sqrt( (x1[i] - x2[i])**2 + (y1[i] - y2[i])**2 + (z1[i] - z2[i])**2) ) 
-    
+        norms.append( np.sqrt( (x1[i] - x2[i])**2 + (y1[i] - y2[i])**2 + (z1[i] - z2[i])**2) )
+
     return norms
 
 def norm_untill(funcs1, funcs2, t, max_dist):
@@ -212,8 +327,8 @@ def norm_untill(funcs1, funcs2, t, max_dist):
 
     norms = []
     for i in range(len(t)):
-        norms.append( np.sqrt( (x1[i] - x2[i])**2 + (y1[i] - y2[i])**2 + (z1[i] - z2[i])**2) ) 
-    
+        norms.append( np.sqrt( (x1[i] - x2[i])**2 + (y1[i] - y2[i])**2 + (z1[i] - z2[i])**2) )
+
     return norms
 
 """ SECOND HALF: OBTAINING RESULTS """
@@ -233,15 +348,13 @@ Tw = y[:,2]
 
 # this bit is to check how the distance between the system and the same system with slight chaged initial conditions
 # changes over time.
-"""state_0_plus = [10, 10.01, 14] # original inital conditions [10, 10, 14]
+state_0_plus = [10, 10.01, 14] # original inital conditions [10, 10, 14]
 y_plus = odeint(system, state_0_plus, t) # justify why small change in initial conditions is small enough
 u_plus = y[:,0]
 Te_plus = y[:,1]
 Tw_plus = y[:,2]
-
 plt.plot(t, norm(y, y_plus, t))
-plt.show()"""
-
+plt.show()
 
 
 # first plots
@@ -311,7 +424,7 @@ plt.ylim((-30,30))
 plt.show()"""
 
 #times_between_ENSO.sort()
-# plot of ti against ti+10, ignoring the first 10 events 
+# plot of ti against ti+10, ignoring the first 10 events
 """plt.scatter(times_between_ENSO[10:-10], times_between_ENSO[20:])
 plt.title("Ti vs T(i+10)")
 plt.xlabel("T(i+10)")
@@ -355,4 +468,4 @@ for i in range(int(series_degree/sift)):
     n_term = np.array(un_fourier)[:,sift*i]
     plt.plot(t, n_term, label = "{}".format(i))
 plt.legend()"""
-plt.show()
+#plt.show()
