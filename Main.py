@@ -153,7 +153,6 @@ def make_func(list_func, x):
     Returns
     -------
     Value of function at x
-
     """
     # first bit makes sure that we wont round into an index outside the reach of the list
     if len(list_func) - 1 < int(round(x/dt)):
@@ -221,7 +220,6 @@ def find_all_maxima(f, df, start_step, end_step, step_size, y_shift):
     Returns
     -------
     return the values of highest peaks of the function
-
     """
     roots = []
     brackets = []
@@ -276,7 +274,6 @@ def standard_dev(mylist):
     Returns
     -------
     standard deviation of mylist
-
     """
     list_length = len(mylist)
     if list_length == 0:
@@ -296,11 +293,10 @@ def norm(funcs1, funcs2, t):
     funcs1 : odeint output for first system
     funcs2 : odeint output for second system
     t : array for time steps
-
+    
     Returns
     -------
     returns array of distances bewteen the fist and second system
-
     """
     x1 = funcs1[:,0]
     y1 = funcs1[:,1]
@@ -346,39 +342,35 @@ u = y[:,0]
 Te = y[:,1]
 Tw = y[:,2]
 
+
 # this bit is to check how the distance between the system and the same system with slight chaged initial conditions
 # changes over time.
-state_0_plus = [10, 10.01, 14] # original inital conditions [10, 10, 14]
+"""state_0_plus = [10, 10.01, 14] # original inital conditions [10, 10, 14]
 y_plus = odeint(system, state_0_plus, t) # justify why small change in initial conditions is small enough
 u_plus = y[:,0]
 Te_plus = y[:,1]
 Tw_plus = y[:,2]
 plt.plot(t, norm(y, y_plus, t))
-plt.show()
+plt.show()"""
 
 
 # first plots
-
-"""plt.plot(t, u, label="u")
+"""plt.plot(t, u) #, label="u")
 plt.title("Current velocity against time ({} years)".format(t_end))
 plt.xlabel("Time t (years)")
 plt.ylabel("Current Velocity u ") # 10^3km / year  units?
 plt.ylim((-400,400))
 plt.xlim((0, t_end))
-plt.legend()
-plt.grid(axis = 'y')"""
-#plt.show()
+#plt.legend()
+#plt.grid(axis = 'y')
+plt.show()"""
 
-
-"""
-plt.plot(t, Te - Tw)
+"""plt.plot(t, Te - Tw)
 plt.title("Difference in Temp against time ({} years)".format(t_end))
 plt.xlabel("Time t (years)")
-plt.ylabel("T_e - T_w ")
+plt.ylabel(r'$T_e - T_w$')
 plt.ylim((-30,30))
-plt.show()
-"""
-
+plt.show()"""
 
 
 du = diff(u, t, dt) # calculating derivative of u
@@ -408,27 +400,26 @@ print("The mean time between ENSO events (ignoring the first 10) is: {} years".f
 print("The standard deviation of ENSO events (ignoring the first 10) is: {}".format(dev_T))
 
 
-# histogram plot make nicer
-"""plt.hist(times_between_ENSO, bins = 30)
+# histogram plot for times between ENSO events
+"""plt.hist(times_between_ENSO, bins = 260, edgecolor="white", range=[1.5, 7])
+plt.title("Histogram plot of times between ENSO events for {} years".format(t_end))
 plt.ylabel("Number of ENSO events")
-plt.xlabel("Time beteen ENSO events")
+plt.xlabel("Time beteen ENSO events (years)")
 plt.show()"""
 
-# ADRISNANANA
 # plot of the fractal 8 figure thing
 """plt.plot(u, Te - Tw)
-plt.title("Difference in Temp against current velocity".format(t_end))
-plt.xlabel("current velocity (1000 km / years)")
-plt.ylabel("T_e - T_w ")
+plt.title("Difference in Temperature against current velocity".format(t_end))
+plt.xlabel("u")
+plt.ylabel(r'$T_e - T_w$')
 plt.ylim((-30,30))
 plt.show()"""
 
-#times_between_ENSO.sort()
 # plot of ti against ti+10, ignoring the first 10 events
-"""plt.scatter(times_between_ENSO[10:-10], times_between_ENSO[20:])
-plt.title("Ti vs T(i+10)")
-plt.xlabel("T(i+10)")
-plt.ylabel("Ti")
+"""plt.scatter(times_between_ENSO[10:-10], times_between_ENSO[20:] , s = 5)
+plt.title(r"Scatter plot of $T_i$ vs $T_{(i+10)}$ for {} years")
+plt.xlabel(r'$T_{(i+10)}$')
+plt.ylabel(r'$T_i$')
 plt.show()"""
 # if uncorrelated, graph would have no distinguishable pattern
 
@@ -437,14 +428,16 @@ plt.show()"""
 mod_u = mod_y[:,0]
 mod_Te = mod_y[:,1]
 mod_Tw = mod_y[:,2]
-plt.plot(t, mod_u, label="mod_u")
+#plt.plot(t, mod_u, label="mod_u")
 mod_roots = find_all_maxima(mod_u, du, t_start, t_end, .1, 100)
+
 ENSO_months = []
 for i in range(len(mod_roots)):
-    ENSO_months.append(mod_roots[i] % 1)"""
+    ENSO_months.append(mod_roots[i] % 1)
 
-# histogram plot for amount of
-"""plt.hist(ENSO_months, bins= 12)
+# histogram plot for in which months ENSO events occur
+plt.hist(ENSO_months, bins = 12, edgecolor="white")
+plt.title("Times of the year an ENSO event occurs over {} years".format(t_end))
 plt.ylabel("ENSO event")
 plt.xlabel("Months")
 plt.show()"""
@@ -453,7 +446,10 @@ plt.show()"""
 """fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.plot(u, Te, Tw)
-plt.draw()
+ax.set_xlabel(r'$u$')
+ax.set_ylabel(r'$T_e$')
+ax.set_zlabel(r'$T_w$')
+ax.set_title("Strange Attractor")
 plt.show()"""
 
 # fourier series stuff ( fun but i think ultimately useless unless you see some patterns which i didnt notice)
