@@ -1,0 +1,358 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{graphicx}
+
+\title{El Niño : A Chaotic Dynamical System}
+\author{
+         Patryk Drozd, Adriana Voloshyna \\[4ex]
+         \begin{minipage}[t]{4cm}
+             \small
+            \textsc{Maynooth University}
+         \end{minipage} \quad
+         \begin{minipage}[t]{6cm}
+             \small
+            \textsc{Department of Theoretical Physics}
+         \end{minipage}
+    }
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{3d plot purple.png}
+\caption{\label{fig:Diagram}}
+\end{figure}
+
+
+\begin{abstract}
+The aim of this project is to investigate the behaviour of the El Niño Southern Oscillation (ENSO) phenomenon, in particular its underlying chaotic properties. This is done by creating a system of equations which simulate the equatorial Pacific, and analysing the data obtained from our simple model. 
+\end{abstract}
+
+\newpage
+
+\section{Background}
+El Niño de Navidad is the name given to a phenomenon observed by Peruvian fishermen, describing the unusual warming of the coastal waters around Christmas time [2]. We know now that El Niño causes severe droughts, flooding, rains temperature rises in several places around the globe [3]. For example, the 1997-98 El Niño event, which was regarded as one of the most powerful in recorded history, is associated with many natural disasters across several continents. It is estimated that air temperature was temporarily warmed by 1.5°C (instead of the usual 0.25°C associated with El Niño events), causing 16\% of the world's reefs to die. It also brought about extreme rainfall in Kenya and Somalia, which caused a severe outbreak of Rift Valley fever. It broke the record rainfall in California, and caused one of Indonesias worst recorded droughts. 1998 then became the warmest recorded year in its time[4].  From a scientific perspective, El Niño is only one of three states of an irregular climate phenomenon known as ENSO- El Niño - Southern Oscillation. 
+
+\begin{enumerate}
+
+\item El Niño : this causes a warming of the central and eastern tropical Pacific Ocean, and the typical trade winds blowing from east to west along the equator weaken, or even start blowing the other direction.
+
+\item La Niña : this causes a cooling of the central and eastern tropical Pacific Ocean, where the typical trade winds increase in strength. 
+
+\item Neutral : intuitively, this is when neither El Niño or La Niña are in effect[1]. 
+
+\end{enumerate}
+
+The most interesting thing however about this ENSO cycle is that it has been really difficult to predict. Scientists have been studying the patterns of this phenomenon by analysing past recorded events, and as will be revealed in this project, there is an element of chaos related to El Niño which causes its erratic behaviour[5]. 
+
+\section{Introduction}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{el nino diagram.png}
+\caption{\label{fig:Diagram}Diagram of an El Niño event}
+\end{figure}
+
+To create a model of the Pacific weather system, we assume the equatorial Pacific Ocean to be a box of fluid. Imagine that this box has an eastern temperature $T_e$ and a western temperature $T_w$. Then the temperature gradient $\frac{(T_e - T_w)}{\Delta x}$ creates a surface wind which in turn generates a current, with current velocity u. With this information we can describe the system with the following differential equation.
+
+$$\frac{du}{dt} = \frac{B}{\Delta x} (T_e - T_w) - C(u - u^*)$$
+
+B, C are constants, $\Delta x$ is the ocean width, $\frac{B}{\Delta x} (T_e - T_w) - Cu^* $ represents wind-produced stress and -Cu represents the mechanical damping. Also a negative value for u* accounts for the effect of the mean tropical surface eastern winds. 
+
+Under the assumption of a constant deep ocean temperature, the following equations further help describe the Pacific air-sea interaction : 
+
+$$\frac{dT_e}{dt} = - \frac{uT_w}{2 \Delta x} - A(T_w - T^*)$$
+
+$$\frac{dT_w}{dt} = - \frac{uT_e}{2 \Delta x} - A(T_e - T^*)$$
+
+These equations approximate a finite difference to the temperature equation of fluid flow. On the right hand side of the equations we see the terms describing the horizontal transfer of heat by the flow of the fluid, known as advection, followed by the negative term which represents the forcing and thermal damping. Here A is a constant and $T^*$ is the temperature the ocean would settle to in the absence of motion. 
+
+Note that while these equations are very useful in studying and understanding the basic model of the equatorial Pacific Ocean, there are some limitations such as certain wave propagation and the role of absolute temperature[6].
+
+The aim of this project is to examine and understand the ENSO events using the equations given above. In the first part of this report, we will solve the differential equations and plot the occurrence of ENSO events. In the second part we will examine the chaotic behaviour of these events, and lastly, in third part, we will investigate the stability of the model. 
+
+\section{ENSO Events}
+
+Before we delve into the fascinating chaotic properties of the ENSO events, we must collect some data on when and how often they occur. To do so, we must obtain a plot of the current velocity u against time t. 
+
+We begin by solving the given differential equations using SciPy’s odeint function. Given the following parameters
+
+$$A = 1$$
+$$B = 663$$
+$$C = 3$$
+$$T^* = 12$$
+$$u^* = -14.2$$
+$$\Delta x = 7.5 $$
+
+and these initial conditions
+
+$$u = 10$$
+$$T_e = 10$$
+$$T_w = 14 $$
+
+Time t is measured in years and distance $\Delta x$ is in units of 1000 kilometres, we obtain solutions for u(t), $T_e(t)$ and $T_w(t)$. To ensure an adequate level of accuracy we let the step size $\Delta t =  0.01$ and integrate over a timespan of 20 years. 
+
+
+
+\begin{figure}
+    \centering
+    \subfloat[\centering a]{{\includegraphics[width=7cm]{Current velocity against time (20 years).png} }}%
+    \qquad
+    \subfloat[\centering b]{{\includegraphics[width=7cm]{Difference in Temp against time (20 years).png} }}%
+    \caption{Plots over 20 years}% Add caption
+    \label{fig:example}%
+\end{figure}
+
+In figure 3  above, we can observe the behaviour of the ENSO process. The peaks in figure 3 [a] mark when an El Niño event occurs, that is, when the current reverses direction and the warm waters flow eastward. To measure the relevant peaks of the plot, it was necessary to not only find the roots using the bisection method, but to also isolate the extreme roots which would actually represent the El Niño events. This was done by creating a new function where we shifted the x axis up by 100, as seen below
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{shifted.png}
+\caption{\label{fig:Diagram}Shifted Figure 3 [a]}
+\end{figure}
+
+This gave us the values that are highlighted on the plot above. The values we obtained for the times of the ENSO events were quite similar to the values in the sample plots, with a slight deviation towards the end, where we got two roots ( ENSO events) at t = 15.9 and t = 17.4 years instead of t = 19.5 years as seen on the sample plot. 
+
+In figure 3 [b] we obtained a plot of $T_e - T_w$ against t which looks rather similar to figure 2 [a], and this is because the change in current velocity which causes the El Niño events is what causes the abnormal warming of the eastern tropical Pacific Ocean. 
+
+
+\begin{figure}
+    \centering
+    \subfloat[\centering a]{{\includegraphics[width=7cm]{Current velocity against time (500 years) Part 1.png} }}%
+    \qquad
+    \subfloat[\centering b]{{\includegraphics[width=7cm]{Current velocity against time (500 years) Part 2.png} }}%
+    \label{fig:example}%
+
+    \centering
+    \subfloat[\centering c]{{\includegraphics[width=7cm]{Current velocity against time (500 years) Part 3.png} }}%
+    \qquad
+    \subfloat[\centering d]{{\includegraphics[width=7cm]{Current velocity against time (500 years) Part 4.png} }}%
+    \caption{Plots over 400 years}% Add caption
+    \label{fig:example}%
+
+
+\end{figure}
+
+\hspace{}
+
+When we tried to integrate the system over 400 years, we found that the El Niño occurs rather unpredictably, with no defining pattern that was easy to spot. This brought us to the next part of the project where we study the apparently random, or rather the chaotic element of the El Niño events. 
+
+\newpage
+
+\section{Chaos}
+
+A simple google search will show how excited the world of science is to find low order chaotic behaviour within the ENSO cycle. But for us to delve into the nature of these claims we must obtain the time periods between each El Niño event. 
+
+We set the time to 1000 years and found, using our root finder function, the times of all the El Niño events in that period. To ensure that the system settles into its oscillatory nature we ignore the first ten such events. Our calculations showed that in the given period there were 255 El Niño events. We then obtain the period of time T between these events and calculate the mean value and standard deviation of T. Our mean function shows that the mean value of T is 3.923042 years and similarly the standard deviation of T was found to be 1.664293 years. To see how it varied, we found the mean and standard deviation of T for different time frames such as 500 years and 2000 years, and we found that the values actually stayed relatively unchanged.
+
+\newpage
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{Histogram plot of times between ENSO events for 5000 years (shrunk).png}
+\caption{\label{fig:Diagram}Histogram}
+\end{figure}
+
+The data we obtained can be seen in the histogram above. We ran the system over 5000 years in order to ensure a clear plot. It’s clear from the graph that the periods between each El Niño vary from 2 to 7 years, as expected, however it is interesting to note that there is almost an equal likelihood of the El Niños being 2-3 years apart, as there is of them being 5 years apart. 
+
+One way to show that these periods T are not random is to plot $T_i$ against $T_{i+10}$, where $T_i$ is the period between the $(i - 1)^{th}$ and $i^{th}$ El Niño. We first tried to plot it using an ordinary plot, and obtained very strange results, however when we tried to do a scatter plot we discovered an interesting pattern. It’s clear from the scatter plot below that the periods are correlated. If these periods were completely random we wouldn’t see the clusters of points, but rather very random points, with no definitive pattern. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\textwidth]{Scatter plot of T_i vs T_(i+10) for 20000 years.png}
+\caption{\label{fig:Diagram}Scatter Plot}
+\end{figure}
+
+\newpage
+
+Furthermore we can demonstrate the chaotic essence of the El Niño events by creating a phase plot of the system. To do this, we used the functions we previously found for $T_e$ and $T_w$ to plot $T_e - T_w$ against u. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{Difference in Temperature against current velocity (fractal thing) for 100 years.png}
+\caption{\label{fig:Diagram}Phase Plot}
+\end{figure}
+
+The behaviour that can be seen above is a defining feature of chaos, in particular, the image shows that there is a strange attractor present in the system we’ve constructed. When we zoomed in on the lines of our plot, there was a clear indication of fractal patterns. The graphs below show that the lines keep appearing in a similar manner even when enlarged.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering a]{{\includegraphics[width=7cm]{Difference in Temperature against current velocity (fractal thing) for 100 years (zoom1).png} }}%
+    \qquad
+    \subfloat[\centering b]{{\includegraphics[width=7cm]{Difference in Temperature against current velocity (fractal thing) for 100 years (zoom3).png} }}%
+    \label{fig:example}%
+
+    \centering
+    \subfloat[\centering c]{{\includegraphics[width=8cm]{Difference in Temperature against current velocity (fractal thing) for 100 years (zoom4).png} }}%
+    \caption{Magnified sections of Phase Plot}% Add caption
+    \label{fig:example}%
+\end{figure}
+
+\newpage
+
+We noticed that the image looked rather similar to the Lorentz attractor which motivated us to create a 3D version of the phase plot. Labelling the x axis as u, the y axis as $T_e$ and the z axis as $T_w$, we obtained the following result.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{3d plot purple.png}
+\caption{\label{fig:Diagram}Strange Attractor}
+\end{figure}
+
+\section{Stability}
+
+A defining feature of chaos is its sensitivity to initial conditions. In this part of the project we investigate just how stable the system that we created is. Small changes were made to the parameters given at the start, and their effects can be seen in the plots below.
+
+\begin{itemize}
+
+\item The parameter A controls the difference between $T_e$, $T_w$ and the average temperature $T^*$.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\textwidth]{A 1.2.png}
+\caption{\label{fig:Diagram}{Phase plot with A = 1.2}}
+\end{figure}
+
+In the plots above we changed A from 1 to 1.2, and it appears that the current velocity simply settles down to -120, which seems unphysical. In any case, the ENSO oscillation loses its pattern and even the phase plot seems to spiral into itself. We also tried to change A to a smaller value but we didn’t observe any notable changes.
+
+\item The parameter B controls the magnitude of the difference between $T_e$ and $T_w$, and how that affects the current velocity. 
+
+We tried to increase and decrease this parameter and we didn’t observe significant changes to our results. We can conclude from this that the chaotic nature of the El Niño events most likely doesn’t depend heavily on this parameter. 
+
+
+\item C affects the mechanical damping of the oscillation.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering a]{{\includegraphics[width=7cm]{c 2.3 (1).png} }}%
+    \qquad
+    \subfloat[\centering b]{{\includegraphics[width=7cm]{C 2.3 (zoom).png} }}%
+    \caption{Phase plot with C = 2.3}% Add caption
+    \label{fig:example}%
+\end{figure}
+
+Decreasing C from 3 to 2.3 we find that once again the system settles to a constant current velocity of -125, similar to what we’ve seen above. The phase plot also shows some very strange behaviour where it appears to converge to a current velocity of -124 and a temperature difference $T_e$ - $T_w$ of -2.85 
+
+\item $T^*$ is the temperature to which the ocean would relax to in the absence of motion. Changing values of $T^*$ had a really similar effect to increasing the value of A, which makes sense because in both cases we are increasing the difference between $T_e$, $T_w$ and $T^*$. 
+
+\item $u^*$ accounts for the effect of the tropical surface winds blowing from the east. It appears that for any values close to -14.2, the results remain unchanged, and from this we can conclude that the ENSO cycle isn’t affected by the tropical surface easterlies. 
+
+\item $\Delta x$ denotes the width of the simulated ocean.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering a]{{\includegraphics[width=7cm]{dx 15.png} }}%
+    \qquad
+    \subfloat[\centering b]{{\includegraphics[width=7cm]{d 15 (zoom).png} }}%
+    \caption{Phase plot with $\Delta x = 15$}% Add caption
+    \label{fig:example}%
+\end{figure}
+
+When varying this parameter within a small enough range, we don’t see many changes in our plots, however we noticed that when we doubled the width of ocean, the $T_e - T_w$ vs u plot appeared to converge, as seen above.
+
+\end{itemize}
+
+
+Another important factor that may influence the stability of the model are seasonal fluctuations. This causes trade winds to vary in strength which affects the average current velocity u*. To account for this, we replace $u^*$ with $u^* (1 + 3sin(\omega t))$ where $\omega = 2\pi$. This additional factor is reminiscent of a forced oscillation.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\textwidth]{modified vs original 40 years.png}
+\caption{\label{fig:Diagram}Comparison after changing $u^*$ with $u^* (1 + 3sin(\omega t))$}
+\end{figure}
+
+We can see here that the behaviour is more erratic, with El Niño events even in the first ten years. Occasionally when the current reverses direction (becomes positive) it appears to stay in that state for a number of years, as seen in the graph. This behaviour appears more unpredictable than the original model, and this can also be seen in the phase plot.
+
+\newpage
+
+Lastly we want to see what time of year an El Niño event is most likely to occur. We created a histogram plot which shows us the probability of an El Niño event being triggered. To do this, we found the times of all the El Niño events over the course of 1000 years, and using the modulus operator we obtained the values modulo 1 year. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{correct one.png}
+\caption{\label{fig:Diagram}System with change $u^* = u^* ( 1 + 3 sin(\omega t))$}
+\end{figure}
+
+To check whether the ENSO cycle actually depends on the seasonal variation, we also obtained a histogram of the probability of El Niño events without the modified value for u. As the El Niño events seemed to occur with equal probability across the entire year, we concluded that the seasonal variations do indeed affect the periodicity of the cycle. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\textwidth]{Original Times of the year an ENSO event occurs over 1000 years.png}
+\caption{\label{fig:Diagram}System without changing $u^*$}
+\end{figure}
+
+\newpage
+
+However, we quickly ran into the issue of not knowing whether our year starts in January or some other time of year. To resolve this problem we obtained another histogram with $u^* = u^* ( 1 - 3 sin(\omega t))$, with the same value for $\omega$. This was to see whether the ENSO cycle actually depends on the time of year (i.e. the season) or if it’s just periodic but independent of the seasons.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\textwidth]{- sin times of year.png}
+\caption{\label{fig:Diagram}System with change $u^* = u^* ( 1 - 3 sin(\omega t))$}
+\end{figure}
+ 
+We saw that the El Niños still occurred in the same time of year as before, and so we concluded, from the references provided, that the El Niños must peak in winter. This answers the question of whether El Niño is more likely to occur in January or July. 
+
+\newpage
+
+\section{Further Research}
+
+So far we have observed that this system of equations appears to be chaotic in nature. We know that a key feature of chaotic motion is sensitivity to initial conditions. We decided to try to measure at which point two systems with very similar initial conditions are noticeably different.
+Similar to the 3D phase plot earlier, we created a 3D phase plot of another system, with very similar initial conditions. We then created a function to calculate the “distance”, in the form of a euclidean norm, between the two plots for each point in time. Plotting these distances against time t, we obtain the following graphs which show two such cases and reaffirms that this system is chaotic. Figure [a] compares the solutions to our system of equations with the original initial conditions (u = 10, $T_e =  10$, $T_w = 14$) and one with initial conditions (10.1, 10, 14). Similarly in figure [b] we have the second system with initial conditions (10.001, 10, 14).
+
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering a]{{\includegraphics[width=7cm]{distance state0 10.1 10 14.png} }}%
+    \qquad
+    \subfloat[\centering b]{{\includegraphics[width=7cm]{distance state0 10.001 10 14.png} }}%
+    \caption{Measure of how different two systems are}% Add caption
+    \label{fig:example}%
+\end{figure}
+
+We were also interested in how a fourier series representation might give us further insight into the periodicity of the system. In particular we thought there may be a some pattern to discover in the terms that make up the fourier series, which are sin and cos functions. To investigate this, we created a fourier series function which would approximate the function u(t) to a certain number of terms. We also created a list of functions of each of the individual terms of the series, and plotted these with the original function. In the graph [a] below we can see that the Fourier series with 40 terms is a good approximation of our function u for 20 years. In graph [b] below we plot the first four terms of the series individually. However, we found no unique correlation between our function and its Fourier series.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering a]{{\includegraphics[width=7cm]{fourier 40 terms.png} }}%
+    \qquad
+    \subfloat[\centering b]{{\includegraphics[width=7cm]{final fourier.png} }}%
+    \caption{Fourier series with 40 terms}% Add caption
+    \label{fig:example}%
+\end{figure}
+
+\newpage
+
+\section{Conclusion}
+
+What initially caught our eye was the unique title of the project, “El Niño” , but we soon learnt that the dynamics and chaos behind the phenomenon were even more fascinating. Over the past few months we have studied both the physical effects of the ENSO cycle, and the beautiful mathematical structure behind it. Using our computational skills we acquired the data needed to study the chaotic nature of our system, and investigate its stability. That is, we found solutions to the ODEs, and we obtained necessary plots to show the periodic and chaotic elements of the ENSO phenomenon.  We resorted to creative problem solving and sometimes trial and error when we ran into certain challenges. It was truly interesting to learn how we could go from seemingly erratic behaviour to the intriguing strange attractor as seen in the phase plot.  Overall we gained a valuable understanding of both the El Niño phenomenon and the skills needed to research such a complex system.
+
+\section{Acknowledgements}
+
+We are very grateful to the Theoretical Physics department for their help and support with this project. In particular, the free tea provided in the staff room was greatly appreciated . We wish to give a very special thank you to Professor Peter Coles, Hannah O’ Brennan, Saoirse Ward, Aoibhinn Gallagher and Aonghus Hunter-McCabe for guiding us through the challenges we faced both during the course of the semester and in this project.
+
+\begin{thebibliography}{9}
+
+\bibitem{}
+    https://www.climate.gov/news-features/blogs/enso/what-el-ni\%C3\%B1o\%E2\%80\%93southern-oscillation-enso-nutshell
+\bibitem{}
+    cpc.ncep.noaa.gov/
+\bibitem{}
+    https://www.who.int/news-room/feature-stories/detail/el-ni\%C3\%B1o-affects-more-than-60-million-people
+\bibitem{}  
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4317261/
+
+\bibitem{}
+https://web.archive.org/web/20090827143632/http://www.cpc.noaa.gov/products/analysis\_monitoring
+/ensostuff/ensofaq.shtml#DIFFER
+\bibitem{}
+https://www.jstor.org/stable/1696890 (this is file science.pdf Peter provided us with)
+\bibitem{}
+Figure 2 - https://en.wikipedia.org/wiki/El\_Ni\%C3\%B1o#/media/File:ENSO\_-\_normal.svg
+
+\end{thebibliography}
+
+\end{document}
